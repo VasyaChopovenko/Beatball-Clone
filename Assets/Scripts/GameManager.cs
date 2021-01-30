@@ -6,6 +6,7 @@ public class GameManager : MonoBehaviour
 {
     public GameObject ballPrefab;
     public GameObject playerPrefab;
+    public BonusInstaller bonusPrefab;
     public Text scoreText;
     public Text ballsText;
     public Text levelText;
@@ -15,8 +16,12 @@ public class GameManager : MonoBehaviour
     public GameObject panelPlay;
     public GameObject panelLevelCompleted;
     public GameObject panelGameOver;
+    public GameObject canvas;
 
     public GameObject[] levels;
+    public Bonus[] bonuses;
+
+    public BallFactory BallFactory { get; private set; }
 
     public static GameManager Instance { get; private set; }
 
@@ -60,15 +65,15 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private int _balls;
+    private int _lives;
 
-    public int Balls
+    public int Lives
     {
-        get { return _balls; }
+        get { return _lives; }
         set
         {
-            _balls = value;
-            ballsText.text = "BALLS: " + _balls;
+            _lives = value;
+            ballsText.text = "BALLS: " + _lives;
         }
     }
 
@@ -78,10 +83,27 @@ public class GameManager : MonoBehaviour
         SwitchState(State.INIT);
     }
 
+    public void CreateBall()
+    {
+        if (BallFactory.CountBalls == 0)
+        {
+            GameManager.Instance.Lives--;
+            if (Lives > 0)
+            { 
+                BallFactory.CreateBall(Vector3.zero);
+            }
+        }
+    }
+
     void Start()
     {
         Instance = this;
         SwitchState(State.MENU);
+    }
+
+    private void Awake()
+    {
+        bonuses = new Bonus[2] { new MultiBall(2), new MultiBall(3) };
     }
 
     public void SwitchState(State newState, float delay = 0)
@@ -110,12 +132,14 @@ public class GameManager : MonoBehaviour
                 panelMenu.SetActive(true);
                 break;
             case State.INIT:
+                BallFactory = new BallFactory(ballPrefab);
+                BallFactory.OnBallDestroyed += CreateBall;
                 Cursor.visible = false;
                 panelPlay.SetActive(true);
                 Score = 0;
                 Level = 0;
-                Balls = 3;
-                if(_currentLevel != null)
+                Lives = 3;
+                if (_currentLevel != null)
                 {
                     Destroy(_currentLevel);
                 }
@@ -125,7 +149,7 @@ public class GameManager : MonoBehaviour
             case State.PLAY:
                 break;
             case State.LEVELCOMPLETED:
-                Destroy(_currentBall);
+                BallFactory.Dispose();
                 Destroy(_currentLevel);
                 Level++;
                 panelLevelCompleted.SetActive(true);
@@ -136,12 +160,13 @@ public class GameManager : MonoBehaviour
                     SwitchState(State.GAMEOVER);
                 else
                 {
+                    BallFactory.CreateBall(Vector3.zero);
                     _currentLevel = Instantiate(levels[Level]);
                     SwitchState(State.PLAY);
                 }
                 break;
             case State.GAMEOVER:
-                if(Score > PlayerPrefs.GetInt("higherscore"))
+                if (Score > PlayerPrefs.GetInt("higherscore"))
                 {
                     PlayerPrefs.SetInt("higherscore", Score);
                 }
@@ -159,15 +184,11 @@ public class GameManager : MonoBehaviour
             case State.INIT:
                 break;
             case State.PLAY:
-                if (_currentBall == null)
+                if (Lives <= 0)
                 {
-                    if (Balls > 0)
-                    {
-                        _currentBall = Instantiate(ballPrefab);
-                    }
-                    else
-                        SwitchState(State.GAMEOVER);
+                    SwitchState(State.GAMEOVER);
                 }
+
                 if (_currentLevel != null && _currentLevel.transform.childCount == 0 && !_isSwitchingState)
                 {
                     SwitchState(State.LEVELCOMPLETED);
