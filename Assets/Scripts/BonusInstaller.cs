@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class BonusInstaller : MonoBehaviour
 {
@@ -8,12 +9,12 @@ public class BonusInstaller : MonoBehaviour
 
     private void OnEnable()
     {
-        bonus = GameManager.Instance.bonuses[Random.Range(0, 2)];
+        bonus = GameManager.Instance.bonuses[UnityEngine.Random.Range(0, 2)];
     }
 
     void OnBecameInvisible()
     {
-        Destroy(gameObject);
+        GameManager.Instance.BonusFactory.DeleteBonus(gameObject);
     }
 
     private void OnTriggerEnter(Collider collider)
@@ -23,6 +24,31 @@ public class BonusInstaller : MonoBehaviour
             bonus.Get();
             Destroy(gameObject);
         }
+    }
+}
+
+public class BonusFactory : IDisposable
+{
+    List<GameObject> bonuses = new List<GameObject>();
+
+    public void CreateBonus(Vector3 position)
+    {
+        var newBonus = GameObject.Instantiate(GameManager.Instance.bonusPrefab, position, Quaternion.identity, GameManager.Instance.canvas.transform);
+        bonuses.Add(newBonus);
+    }
+
+    public void DeleteBonus(GameObject bonus)
+    {
+        bonuses.Remove(bonus);
+        GameObject.Destroy(bonus);
+    }
+
+    public void Dispose()
+    {
+        foreach (GameObject bonus in bonuses)
+            GameObject.Destroy(bonus);
+
+        bonuses.Clear();
     }
 }
 

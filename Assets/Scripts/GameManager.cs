@@ -6,7 +6,7 @@ public class GameManager : MonoBehaviour
 {
     public GameObject ballPrefab;
     public GameObject playerPrefab;
-    public BonusInstaller bonusPrefab;
+    public GameObject bonusPrefab;
     public Text scoreText;
     public Text ballsText;
     public Text levelText;
@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour
     public Bonus[] bonuses;
 
     public BallFactory BallFactory { get; private set; }
+    public BonusFactory BonusFactory { get; private set; }
 
     public static GameManager Instance { get; private set; }
 
@@ -134,6 +135,7 @@ public class GameManager : MonoBehaviour
             case State.INIT:
                 BallFactory = new BallFactory(ballPrefab);
                 BallFactory.OnBallDestroyed += CreateBall;
+                BonusFactory = new BonusFactory();
                 Cursor.visible = false;
                 panelPlay.SetActive(true);
                 Score = 0;
@@ -150,6 +152,7 @@ public class GameManager : MonoBehaviour
                 break;
             case State.LEVELCOMPLETED:
                 BallFactory.Dispose();
+                BonusFactory.Dispose();
                 Destroy(_currentLevel);
                 Level++;
                 panelLevelCompleted.SetActive(true);
