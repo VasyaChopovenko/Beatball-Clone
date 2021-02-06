@@ -26,7 +26,7 @@ public class Brick : MonoBehaviour
     {
         hits--;
         // Score points
-        if (hits <= 0 )
+        if (hits <= 0)
         {
             GameManager.Instance.Score += points;
             if (Random.Range(0, 10) == 0)

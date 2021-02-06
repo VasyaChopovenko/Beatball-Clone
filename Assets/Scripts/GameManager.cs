@@ -3,8 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
-{
-    public GameObject ballPrefab;
+{ 
     public GameObject playerPrefab;
     public GameObject bonusPrefab;
     public Text scoreText;
@@ -17,11 +16,13 @@ public class GameManager : MonoBehaviour
     public GameObject panelLevelCompleted;
     public GameObject panelGameOver;
     public GameObject canvas;
+    public Player currentPlayer;
 
     public GameObject[] levels;
     public Bonus[] bonuses;
 
-    public BallFactory BallFactory { get; private set; }
+    public BallPool BallPool => BallPool.Instance;
+
     public BonusFactory BonusFactory { get; private set; }
 
     public static GameManager Instance { get; private set; }
@@ -86,12 +87,13 @@ public class GameManager : MonoBehaviour
 
     public void CreateBall()
     {
-        if (BallFactory.CountBalls == 0)
+        if (BallPool.BallsCount == 0)
         {
             GameManager.Instance.Lives--;
-            if (Lives > 0)
-            { 
-                BallFactory.CreateBall(Vector3.zero);
+            if (Lives > 0 && BallPool.Instance.TryGet(out GameObject gameObject))
+            {
+                gameObject.SetActive(true);
+                gameObject.transform.position = Vector3.zero;
             }
         }
     }
@@ -101,11 +103,7 @@ public class GameManager : MonoBehaviour
         Instance = this;
         SwitchState(State.MENU);
     }
-
-    private void Awake()
-    {
-        bonuses = new Bonus[2] { new MultiBall(2), new MultiBall(3) };
-    }
+        
 
     public void SwitchState(State newState, float delay = 0)
     {
@@ -133,8 +131,7 @@ public class GameManager : MonoBehaviour
                 panelMenu.SetActive(true);
                 break;
             case State.INIT:
-                BallFactory = new BallFactory(ballPrefab);
-                BallFactory.OnBallDestroyed += CreateBall;
+                Ball.OnBallDestroyed += CreateBall;
                 BonusFactory = new BonusFactory();
                 Cursor.visible = false;
                 panelPlay.SetActive(true);
@@ -145,13 +142,15 @@ public class GameManager : MonoBehaviour
                 {
                     Destroy(_currentLevel);
                 }
-                Instantiate(playerPrefab);
+                if(currentPlayer == null)
+                    currentPlayer = Instantiate(playerPrefab).GetComponent<Player>();
                 SwitchState(State.LOADLEVEL);
                 break;
             case State.PLAY:
                 break;
             case State.LEVELCOMPLETED:
-                BallFactory.Dispose();
+                currentPlayer.StopShooting();
+                BallPool.Dispose();
                 BonusFactory.Dispose();
                 Destroy(_currentLevel);
                 Level++;
@@ -163,7 +162,11 @@ public class GameManager : MonoBehaviour
                     SwitchState(State.GAMEOVER);
                 else
                 {
-                    BallFactory.CreateBall(Vector3.zero);
+                    if (BallPool.TryGet(out GameObject ball))
+                    {
+                        ball.transform.position = Vector3.zero;
+                        ball.SetActive(true);
+                    }
                     _currentLevel = Instantiate(levels[Level]);
                     SwitchState(State.PLAY);
                 }
@@ -174,6 +177,7 @@ public class GameManager : MonoBehaviour
                     PlayerPrefs.SetInt("higherscore", Score);
                 }
                 panelGameOver.SetActive(true);
+                BallPool.Dispose();
                 break;
         }
     }
