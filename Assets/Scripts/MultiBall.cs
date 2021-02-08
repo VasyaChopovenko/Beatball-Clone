@@ -11,16 +11,15 @@ public class MultiBall : Bonus
         BallPool ballPool = BallPool.Instance;
         List<GameObject> balls = new List<GameObject>(ballPool.ballsOnScene);
 
-        Debug.Log($"{balls.Count}");
-
         foreach (var ball in balls)
         {
             for (int i = 0; i < ballCounts; i++)
             {
                 if (BallPool.Instance.TryGet(out GameObject pooledBall))
-                {
+                { 
                     pooledBall.transform.position = ball.transform.position;
                     pooledBall.SetActive(true);
+                    pooledBall.GetComponent<Ball>().SetEffector(ball.GetComponent<Ball>().ballData.BonusEffector);
                 }
             }
         }

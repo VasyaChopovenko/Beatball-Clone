@@ -6,12 +6,10 @@ public class Player : MonoBehaviour
 {
     [SerializeField]
     private BlasterShot blasterShotPrefab;
+    Rigidbody _rigidbody;
 
     private int shotsCount = 10;
-
     private Coroutine coroutine;
-
-    Rigidbody _rigidbody;
 
     public Blaster blaster { get; private set; }
 
@@ -50,5 +48,21 @@ public class Player : MonoBehaviour
     {
         if (coroutine != null)
             StopCoroutine(coroutine);
+    }
+
+    private IEnumerator ResetBonus()
+    {
+        var time = new WaitForSeconds(3.5f);
+
+        yield return time;
+        var activeBalls = BallPool.Instance.ballsOnScene;
+
+        for (int i = 0; i < activeBalls.Count; i++)
+            activeBalls[i].GetComponent<Ball>().SetEffector(BallPool.bonusEffectors[0]);
+    }
+
+    public void StartResetBonusCoroutine()
+    {
+        StartCoroutine(nameof(ResetBonus));
     }
 }

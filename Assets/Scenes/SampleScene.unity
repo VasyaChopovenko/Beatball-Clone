@@ -6319,9 +6319,10 @@ MonoBehaviour:
   - {fileID: 6385340285216888991, guid: a80f85f0e0b89964899c5eb1c38e2ed9, type: 3}
   - {fileID: 6385340285216888991, guid: 0425b598e13e62642bae800f7f06ee88, type: 3}
   bonuses:
-  - {fileID: -7840392719467814873, guid: 784ec677378264844909b89f1d99644f, type: 3}
-  - {fileID: -7840392719467814873, guid: e3d1b1ccc86ed454bacf6c84185af3ad, type: 3}
   - {fileID: -7840392719467814873, guid: 203b77c0007926147a220c188cc0e422, type: 3}
+  - {fileID: -1161111272579509593, guid: e3d1b1ccc86ed454bacf6c84185af3ad, type: 3}
+  - {fileID: 2895934712651031022, guid: 027892b671164eb4eb93abf2e01fce63, type: 3}
+  - {fileID: -7840392719467814873, guid: 784ec677378264844909b89f1d99644f, type: 3}
 --- !u!4 &1344895950
 Transform:
   m_ObjectHideFlags: 0

@@ -38,10 +38,8 @@ public class GameManager : MonoBehaviour
     }
     State _state;
 
-    GameObject _currentBall;
     GameObject _currentLevel;
     bool _isSwitchingState;
-    bool _levelCompleted;
 
     private int _score;
 

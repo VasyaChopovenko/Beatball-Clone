@@ -31,7 +31,6 @@ public class BonusFactory : IDisposable
 public abstract class Bonus : MonoBehaviour
 {
     public abstract void Get();
-    private bool isColliding;
 
     private void OnTriggerEnter(Collider collider)
     {

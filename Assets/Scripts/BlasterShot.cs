@@ -22,6 +22,9 @@ public class BlasterShot : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        if (collision.gameObject.TryGetComponent(out IHittable hittable))
+            hittable.Hit(1);
+
         Destroy(gameObject);
     }
 }

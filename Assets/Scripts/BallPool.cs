@@ -7,10 +7,10 @@ public class BallPool : MonoBehaviour, IDisposable
     [SerializeField]
     private GameObject ballPrefab;
 
+    public static readonly BonusEffector[] bonusEffectors = new BonusEffector[] { new DefaultEffector(), new FiredEffector(35f) };
+
     private Queue<GameObject> balls = new Queue<GameObject>();
-
     public List<GameObject> ballsOnScene { get; set; } = new List<GameObject>();
-
     public int BallsCount => ballsOnScene.Count;
 
     public static BallPool Instance { get; set; }

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class Brick : MonoBehaviour
+public class Brick : MonoBehaviour, IHittable
 {
     public int hits = 1;
     public int points = 100;
@@ -24,18 +24,6 @@ public class Brick : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        hits--;
-        // Score points
-        if (hits <= 0)
-        {
-            GameManager.Instance.Score += points;
-            if (Random.Range(0, 10) == 0)
-            {
-                GameManager.Instance.BonusFactory.CreateBonus(transform.position);
-            }
-            Destroy(gameObject);
-        }
-
         _renderer.sharedMaterial = hitMaterial;
         Invoke("RestoreMaterial", 0.05f);
     }
@@ -44,4 +32,23 @@ public class Brick : MonoBehaviour
     {
         _renderer.sharedMaterial = _orgMaterial;
     }
+
+    public void Hit(int power)
+    {
+        hits -= power;
+        if(hits <= 0)
+        {
+            GameManager.Instance.Score += points;
+            if (Random.Range(0, 10) == 0)
+            {
+                GameManager.Instance.BonusFactory.CreateBonus(transform.position);
+            }
+            Destroy(gameObject);
+        }
+    }
+}
+
+public interface IHittable
+{
+    void Hit(int power);
 }
